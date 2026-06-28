@@ -1,5 +1,7 @@
+local hooked = false
+
 local function DisableCooldownFlash(cooldown)
-    if type(cooldown) ~= "table" then
+    if not cooldown then
         return
     end
 
@@ -8,26 +10,51 @@ local function DisableCooldownFlash(cooldown)
     end
 end
 
-local function DisableExistingCooldownFlashes()
-    for _, object in pairs(_G) do
-        if type(object) == "table" and type(object.SetDrawBling) == "function" then
-            DisableCooldownFlash(object)
+local function HookCooldownMixin()
+    if hooked then
+        return
+    end
+
+    local cooldown = _G.ActionButton1Cooldown
+    if not cooldown then
+        return
+    end
+
+    local mt = getmetatable(cooldown)
+    if not mt or type(mt.__index) ~= "table" then
+        return
+    end
+
+    if type(mt.__index.SetCooldown) ~= "function" then
+        return
+    end
+
+    hooksecurefunc(mt.__index, "SetCooldown", function(self)
+        DisableCooldownFlash(self)
+    end)
+
+    hooked = true
+end
+
+local function DisableBartenderCooldowns()
+    for i = 1, 10 do
+        local bar = _G["BT4Bar" .. i]
+
+        if bar and bar.buttons then
+            for _, button in pairs(bar.buttons) do
+                if button and button.cooldown then
+                    DisableCooldownFlash(button.cooldown)
+                end
+            end
         end
     end
 end
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+
 frame:SetScript("OnEvent", function()
-    DisableExistingCooldownFlashes()
-
-    local cooldown = _G.ActionButton1Cooldown
-    local mt = cooldown and getmetatable(cooldown)
-    local index = mt and mt.__index
-
-    if type(index) == "table" and type(index.SetCooldown) == "function" then
-        hooksecurefunc(index, "SetCooldown", function(self)
-            DisableCooldownFlash(self)
-        end)
-    end
+    HookCooldownMixin()
+    DisableBartenderCooldowns()
 end)
