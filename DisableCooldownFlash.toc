@@ -1,6 +1,8 @@
 ## Interface: 120007
 ## Title: Disable Cooldown Flash
+## Notes: Disables the Blizzard cooldown ready flash on action buttons.
 ## Author: Absolth
 ## Version: 1.0
+## IconTexture: Interface\AddOns\DisableCooldownFlash\icon
 
 DisableCooldownFlash.lua
