@@ -1,6 +1,10 @@
 local function DisableCooldownFlash(cooldown)
-    if cooldown and cooldown.SetDrawBling then
-        cooldown:SetDrawBling(false)
+    if not cooldown then
+        return
+    end
+
+    if cooldown.SetDrawBling and cooldown.GetObjectType and cooldown:GetObjectType() == "Cooldown" then
+        pcall(cooldown.SetDrawBling, cooldown, false)
     end
 end
 
@@ -11,23 +15,12 @@ end)
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:SetScript("OnEvent", function()
-    for _, bar in pairs({
-        _G.BT4Bar1,
-        _G.BT4Bar2,
-        _G.BT4Bar3,
-        _G.BT4Bar4,
-        _G.BT4Bar5,
-        _G.BT4Bar6,
-        _G.BT4Bar7,
-        _G.BT4Bar8,
-        _G.BT4Bar9,
-        _G.BT4Bar10,
-    }) do
+    for i = 1, 10 do
+        local bar = _G["BT4Bar" .. i]
+
         if bar and bar.buttons then
             for _, button in pairs(bar.buttons) do
-                if button.cooldown then
-                    DisableCooldownFlash(button.cooldown)
-                end
+                DisableCooldownFlash(button.cooldown)
             end
         end
     end
